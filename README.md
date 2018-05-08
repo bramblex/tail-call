@@ -2,6 +2,8 @@
 
 测试地址：[https://bramblex.github.io/tail-call/](https://bramblex.github.io/tail-call/)
 
+文章:[尾递归为啥能优化？](https://zhuanlan.zhihu.com/p/36587160)
+
 ## 介绍
 
 这是一个介绍尾递归的项目，用于介绍尾递归为什么可以优化，以及怎么在代码层面进行优化尾递归。
