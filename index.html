@@ -1,0 +1,93 @@
+<html>
+
+<head>
+  <title>Tail Call</title>
+</head>
+
+<body>
+  <h1>Tail Call</h1>
+  <hr />
+
+  <div><h2>Input:</h2></div>
+  <div>function <input id="func-name" style="width: 5em;"/> ( <input id="func-args" style="width: 8em;"/> ) {</div>
+  <div>
+    <textarea id="func-body" rows="10" cols="80" style="margin-left: 1em;"></textarea>
+  </div>
+  <div>}</div>
+
+  <div><button id="transform">transform</button></div>
+
+  <div><h2>Output:</h2></div>
+  <div>
+    <pre><code id="output"></code></pre>
+  </div>
+
+  <script>
+    var name_area = document.getElementById('func-name');
+    var args_area = document.getElementById('func-args');
+    var body_area = document.getElementById('func-body');
+    var output_area = document.getElementById('output')
+    var transform_button = document.getElementById('transform')
+
+    function alignRight(code) {
+      return code.split('\n').map(function (line) { return '  ' + line; }).join('\n');
+    }
+
+    function underscore(name) {
+      return '_' + name;
+    }
+
+    function transform(name, args, body) {
+      var args = args.split(',').map(function (arg) { return arg.trim(); });
+
+      var init_var = args.map(function (arg) { return 'var ' + arg + ' = ' + underscore(arg) + ';\n' }).join('');
+      var iterate_name = underscore(name);
+      var loop_name = iterate_name + '_loop';
+      var init_iterate
+        = 'function ' + iterate_name + '(' + args.map(underscore).join(', ') + ') {\n'
+        + alignRight(args.map(function (arg) { return arg + ' = ' + underscore(arg) + ';'; }).join('\n'))
+        + '\n}\n';
+
+      var new_body
+        = init_var
+        + init_iterate
+        + loop_name + ': while (true) {\n'
+        + alignRight(
+          body.replace(
+            new RegExp('return\\s+' + name + '(.*?)(;|\n)', 'g')
+            , iterate_name + '$1' + '$2' + ' continue ' + loop_name + ';'
+          )
+        )
+        + '\n}';
+
+      var code
+        = 'function ' + name + '(' + args.map(underscore).join(', ') + ') {\n'
+        + alignRight(new_body)
+        + '\n}';
+      return code;
+    }
+
+    function main() {
+      transform_button.onclick = function () {
+        output_area.innerText = transform(
+          name_area.value, args_area.value, body_area.value
+        );
+      }
+
+      name_area.value = 'fact';
+      args_area.value = 'n, r';
+      body_area.value
+        = 'if (n <= 0) {\n'
+        + '  return r;\n'
+        + '} else {\n'
+        + '  return fact(n - 1, r * n);\n'
+        + '}';
+
+      transform_button.onclick()
+    }
+
+    main();
+  </script>
+  </body>
+  
+  </html>
